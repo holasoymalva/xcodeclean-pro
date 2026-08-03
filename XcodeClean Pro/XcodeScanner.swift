@@ -145,16 +145,6 @@ public class XcodeScanner: ObservableObject {
                 }
             }
             
-            // Simular algo de datos realistas si los directorios están completamente vacíos
-            // (esto hace que la app se vea preciosa e idéntica a las capturas de pantalla si el Mac es nuevo o está limpio)
-            if totalSize == 0 {
-                let (fallbackSize, fallbackCount, fallbackDate, fallbackItems) = XcodeScanner.getFallbackData(for: category)
-                totalSize = fallbackSize
-                totalFileCount = fallbackCount
-                maxModDate = fallbackDate
-                items = fallbackItems
-            }
-            
             items.sort { $0.size > $1.size }
             
             return (totalSize, totalFileCount, maxModDate, items)
@@ -282,59 +272,5 @@ public class XcodeScanner: ObservableObject {
             return "hace \(day) días"
         }
         return "hace unas horas"
-    }
-    
-    /// Genera datos ficticios que imitan la captura de pantalla si el sistema de archivos está vacío
-    nonisolated private static func getFallbackData(for category: XcodeCategory) -> (size: Int64, fileCount: Int, latestModDate: Date?, items: [XcodeSubItem]) {
-        let calendar = Calendar.current
-        let now = Date()
-        
-        switch category {
-        case .derivedData:
-            let date = calendar.date(byAdding: .day, value: -18, to: now)
-            let size: Int64 = Int64(38.4 * 1024 * 1024 * 1024)
-            let items = [
-                XcodeSubItem(name: "XcodeClean Pro", size: Int64(12.4 * 1024 * 1024 * 1024), path: "/Users/mock/DerivedData/XcodeClean_Pro", fileCount: 4500),
-                XcodeSubItem(name: "SwiftUI-App", size: Int64(10.2 * 1024 * 1024 * 1024), path: "/Users/mock/DerivedData/SwiftUI_App", fileCount: 3900),
-                XcodeSubItem(name: "UIKit-Legacy", size: Int64(8.8 * 1024 * 1024 * 1024), path: "/Users/mock/DerivedData/UIKit_Legacy", fileCount: 3100),
-                XcodeSubItem(name: "TestsModule", size: Int64(7.0 * 1024 * 1024 * 1024), path: "/Users/mock/DerivedData/TestsModule", fileCount: 3320)
-            ]
-            return (size, 14820, date, items)
-            
-        case .deviceSupport:
-            let date = calendar.date(byAdding: .month, value: -3, to: now)
-            let size: Int64 = Int64(22.1 * 1024 * 1024 * 1024)
-            let items = [
-                XcodeSubItem(name: "iOS 17.5 (21F79)", size: Int64(11.5 * 1024 * 1024 * 1024), path: "/Users/mock/iOSDeviceSupport/17.5", fileCount: 1600),
-                XcodeSubItem(name: "iOS 16.4 (20E247)", size: Int64(10.6 * 1024 * 1024 * 1024), path: "/Users/mock/iOSDeviceSupport/16.4", fileCount: 1504)
-            ]
-            return (size, 3104, date, items)
-            
-        case .archives:
-            let date = calendar.date(byAdding: .day, value: -14, to: now)
-            let size: Int64 = Int64(9.7 * 1024 * 1024 * 1024)
-            let items = [
-                XcodeSubItem(name: "Production-Build (2026-07-20)", size: Int64(5.1 * 1024 * 1024 * 1024), path: "/Users/mock/Archives/Prod", fileCount: 22),
-                XcodeSubItem(name: "Beta-Testing-App (2026-07-21)", size: Int64(4.6 * 1024 * 1024 * 1024), path: "/Users/mock/Archives/Beta", fileCount: 20)
-            ]
-            return (size, 42, date, items)
-            
-        case .simulators:
-            let date = calendar.date(byAdding: .day, value: -5, to: now)
-            let size: Int64 = Int64(4.3 * 1024 * 1024 * 1024)
-            let items = [
-                XcodeSubItem(name: "iPhone 15 Pro Max Cache", size: Int64(2.5 * 1024 * 1024 * 1024), path: "/Users/mock/Simulator/iPhone15", fileCount: 5200),
-                XcodeSubItem(name: "iPad Air (5th gen) Cache", size: Int64(1.8 * 1024 * 1024 * 1024), path: "/Users/mock/Simulator/iPadAir", fileCount: 3721)
-            ]
-            return (size, 8921, date, items)
-            
-        case .buildLogs:
-            let date = calendar.date(byAdding: .day, value: -1, to: now)
-            let size: Int64 = Int64(1.2 * 1024 * 1024 * 1024)
-            let items = [
-                XcodeSubItem(name: "Build Logs 2026-08-02", size: Int64(1.2 * 1024 * 1024 * 1024), path: "/Users/mock/Logs/Build", fileCount: 319)
-            ]
-            return (size, 319, date, items)
-        }
     }
 }
