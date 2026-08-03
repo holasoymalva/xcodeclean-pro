@@ -11,48 +11,38 @@ public enum XcodeCategory: String, CaseIterable, Identifiable, Codable {
     case derivedData
     case deviceSupport
     case archives
-    case caches
-    case spm
-    case deviceLogs
     case simulators
+    case buildLogs
     
     public var id: String { self.rawValue }
     
     public var name: String {
         switch self {
         case .derivedData:
-            return "Derived Data"
+            return "DerivedData"
         case .deviceSupport:
-            return "Soporte de Dispositivos"
+            return "DeviceSupport"
         case .archives:
-            return "Archivos de Compilación"
-        case .caches:
-            return "Cachés de Xcode"
-        case .spm:
-            return "Cachés de Swift Package Manager"
-        case .deviceLogs:
-            return "Logs de Dispositivos"
+            return "Archives"
         case .simulators:
-            return "Datos de Simuladores"
+            return "Caches de Simulador"
+        case .buildLogs:
+            return "Logs de Build"
         }
     }
     
     public var description: String {
         switch self {
         case .derivedData:
-            return "Archivos intermedios de compilación, índices y registros generados al compilar tus proyectos. Seguro de borrar, Xcode lo regenera."
+            return "Archivos intermedios de compilación e índices."
         case .deviceSupport:
-            return "Datos de soporte para depurar en dispositivos físicos iOS, watchOS, etc. Los archivos para versiones antiguas ocupan gigabytes innecesarios."
+            return "Archivos de soporte para dispositivos físicos iOS/watchOS."
         case .archives:
-            return "Historial de versiones y compilaciones exportadas (.xcarchive). Borra si no necesitas depurar versiones antiguas de producción."
-        case .caches:
-            return "Cachés del IDE, documentación descargada e índices globales de Xcode."
-        case .spm:
-            return "Repositorios Git clonados y dependencias descargadas por Swift Package Manager."
-        case .deviceLogs:
-            return "Registros de fallos y logs de depuración recolectados de dispositivos físicos conectados."
+            return "Historial de versiones y compilaciones exportadas."
         case .simulators:
-            return "Archivos de estado, cachés y datos de las aplicaciones instaladas en los simuladores de iOS."
+            return "Cachés de estados y datos del simulador de iOS."
+        case .buildLogs:
+            return "Registros de fallas y logs de compilación de simulación."
         }
     }
     
@@ -64,18 +54,46 @@ public enum XcodeCategory: String, CaseIterable, Identifiable, Codable {
             return "ipad.and.iphone"
         case .archives:
             return "archivebox.fill"
-        case .caches:
-            return "icloud.and.arrow.down.fill"
-        case .spm:
-            return "shippingbox.fill"
-        case .deviceLogs:
-            return "doc.text.below.ecg.fill"
         case .simulators:
-            return "iphone.gen3"
+            return "square.stack.3d.up.fill"
+        case .buildLogs:
+            return "folder.fill"
         }
     }
     
-    /// Rutas físicas de las carpetas que componen esta categoría.
+    /// Color hexadecimal para la barra de progreso y el gráfico circular
+    public var colorHex: String {
+        switch self {
+        case .derivedData:
+            return "FF7A00" // Naranja
+        case .deviceSupport:
+            return "A155FF" // Púrpura
+        case .archives:
+            return "3B82F6" // Azul
+        case .simulators:
+            return "10B981" // Verde menta
+        case .buildLogs:
+            return "F43F5E" // Rosa
+        }
+    }
+    
+    /// Ruta legible para mostrar en la UI
+    public var displayPath: String {
+        switch self {
+        case .derivedData:
+            return "~/Library/Developer/Xcode/DerivedData"
+        case .deviceSupport:
+            return "~/Library/Developer/Xcode/iOS DeviceSupport"
+        case .archives:
+            return "~/Library/Developer/Xcode/Archives"
+        case .simulators:
+            return "~/Library/Developer/CoreSimulator"
+        case .buildLogs:
+            return "~/Library/Logs/CoreSimulator"
+        }
+    }
+    
+    /// Rutas físicas de las carpetas a escanear/eliminar
     public var paths: [String] {
         switch self {
         case .derivedData:
@@ -89,25 +107,29 @@ public enum XcodeCategory: String, CaseIterable, Identifiable, Codable {
             ]
         case .archives:
             return ["~/Library/Developer/Xcode/Archives"]
-        case .caches:
-            return [
-                "~/Library/Caches/com.apple.dt.Xcode",
-                "~/Library/Developer/Xcode/DocumentationCache"
-            ]
-        case .spm:
-            return ["~/Library/Caches/org.swift.swiftpm"]
-        case .deviceLogs:
-            return ["~/Library/Developer/Xcode/iOS Device Logs"]
         case .simulators:
             return ["~/Library/Developer/CoreSimulator/Devices"]
+        case .buildLogs:
+            return [
+                "~/Library/Developer/Xcode/iOS Device Logs",
+                "~/Library/Logs/CoreSimulator"
+            ]
         }
     }
     
-    /// Rutas absolutas expandiendo la tilde del home (~)
     public var resolvedPaths: [URL] {
         return paths.map { path in
             let expanded = (path as NSString).expandingTildeInPath
             return URL(fileURLWithPath: expanded)
         }
+    }
+}
+
+extension Int64 {
+    public func formattedByteCount() -> String {
+        let formatter = ByteCountFormatter()
+        formatter.allowedUnits = [.useBytes, .useKB, .useMB, .useGB]
+        formatter.countStyle = .file
+        return formatter.string(fromByteCount: self)
     }
 }
